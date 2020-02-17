@@ -1,7 +1,7 @@
 module.exports = {
   database: 'FastFeet',
   username: 'postgres',
-  password: 'docker',
+  password: 'Postgres2020!',// LEMBRAR DE MUDAR A SENHA DO BANCO!
   host: 'localhost',
   dialect: 'postgres',
   define: {

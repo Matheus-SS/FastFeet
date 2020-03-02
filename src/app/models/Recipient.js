@@ -1,8 +1,8 @@
-import Sequelize, {Model} from 'sequelize';
+import Sequelize, { Model } from 'sequelize';
 
 class Recipient extends Model {
-  static init (sequelize) {
-    super.init (
+  static connectToDatabase(sequelize) {
+    super.init(
       {
         name: Sequelize.STRING,
         street: Sequelize.STRING,
@@ -16,6 +16,7 @@ class Recipient extends Model {
         sequelize,
       }
     );
+    return this;
   }
 }
 export default Recipient;

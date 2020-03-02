@@ -1,13 +1,12 @@
 import Sequelize, { Model } from 'sequelize';
 
-class Deliveryman Model {
+class Deliveryman extends Model {
   static connectToDatabase(sequelize) {
     super.init(
       {
         name: Sequelize.STRING,
+        avatar_id: Sequelize.INTEGER,
         email: Sequelize.STRING,
-        password: Sequelize.VIRTUAL,
-        password_hash: Sequelize.STRING,
       },
       {
         sequelize,

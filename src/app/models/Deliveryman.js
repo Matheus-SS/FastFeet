@@ -5,13 +5,18 @@ class Deliveryman extends Model {
     super.init(
       {
         name: Sequelize.STRING,
-        avatar_id: Sequelize.INTEGER,
         email: Sequelize.STRING,
       },
       {
         sequelize,
       }
     );
+    return this;
+  }
+
+  // association 1:1 , it's creates a foreignKey within deliveryman model
+  static associate(models) {
+    this.belongsTo(models.File, { foreignKey: 'avatar_id', as: 'avatar' });
   }
 }
 

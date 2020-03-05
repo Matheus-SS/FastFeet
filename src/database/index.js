@@ -19,6 +19,7 @@ class Database {
 
     models
       .map(model => model.connectToDatabase(this.connection))
+      //it's veryfies if exists a "associate" method, if exists it's runs the method
       .map(model => model.associate && model.associate(this.connection.models));
   }
   // test the connection with the database

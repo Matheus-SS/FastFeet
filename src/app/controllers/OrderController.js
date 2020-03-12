@@ -3,7 +3,8 @@ import Deliveryman from '../models/Deliveryman';
 import Recipient from '../models/Recipient';
 import * as Yup from 'yup';
 
-import Mail from '../../lib/Mail';
+import OrderRegistrationMail from '../jobs/OrderRegistrationMail';
+import Queue from '../../lib/Queue';
 
 class OrderController {
   async store(req, res) {
@@ -23,32 +24,31 @@ class OrderController {
 
     const { recipient_id, deliveryman_id } = req.body;
 
-    const recipientExists = await Recipient.findOne({
+    const recipient = await Recipient.findOne({
       where: { id: recipient_id },
     });
 
     //checks if does not exists a recipient with the id that is on req.body
-    if (!recipientExists) {
+    if (!recipient) {
       return res.status(400).json({ error: 'Recipient does not exists' });
     }
 
-    const deliverymanExists = await Deliveryman.findOne({
+    const deliveryman = await Deliveryman.findOne({
       where: { id: deliveryman_id },
     });
 
     //checks if does not exists a deliveryman with the id that is on req.body
-    if (!deliverymanExists) {
+    if (!deliveryman) {
       return res.status(400).json({ error: 'Deliveryman does not exists' });
     }
 
     // create Orders
-
     const { product_name } = await Order.create(req.body);
 
-    await Mail.sendMail({
-      to: `${deliverymanExists.name} <${deliverymanExists.email}`,
-      subject: 'Produto disponível para retirada',
-      text: 'Produto pronto para entrega',
+    await Queue.addJobs(OrderRegistrationMail.key, {
+      deliveryman,
+      recipient,
+      product_name,
     });
 
     return res.json({

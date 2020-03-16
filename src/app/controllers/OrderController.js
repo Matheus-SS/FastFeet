@@ -16,7 +16,7 @@ class OrderController {
         .required()
         .integer()
         .positive(),
-      Order_id: Yup.number()
+      deliveryman_id: Yup.number()
         .required()
         .integer()
         .positive(),
@@ -26,7 +26,7 @@ class OrderController {
       return res.status(400).json({ error: 'Validation failed' });
     }
 
-    const { recipient_id, Order_id } = req.body;
+    const { recipient_id, deliveryman_id } = req.body;
 
     const recipient = await Recipient.findOne({
       where: { id: recipient_id },
@@ -37,20 +37,20 @@ class OrderController {
       return res.status(400).json({ error: 'Recipient does not exists' });
     }
 
-    const order = await Order.findOne({
-      where: { id: Order_id },
+    const deliveryman = await Deliveryman.findOne({
+      where: { id: deliveryman_id },
     });
 
-    //checks if does not exists a order with the id that is on req.body
-    if (!order) {
-      return res.status(400).json({ error: 'Order does not exists' });
+    //checks if does not exists a deliveryman with the id that is on req.body
+    if (!deliveryman) {
+      return res.status(400).json({ error: 'Deliveryman does not exists' });
     }
 
     // create Orders
     const { product_name } = await Order.create(req.body);
 
     await Queue.addJobs(OrderRegistrationMail.key, {
-      order,
+      deliveryman,
       recipient,
       product_name,
     });
@@ -58,7 +58,7 @@ class OrderController {
     return res.json({
       product_name,
       recipient_id,
-      Order_id,
+      deliveryman_id,
     });
   }
 
@@ -79,10 +79,10 @@ class OrderController {
 
     const { recipient_id, Order_id, product_name } = req.body;
 
-    const order = await Order.findByPk(req.params.id);
+    const deliveryman = await Order.findByPk(req.params.id);
 
-    //checks if does not exists a order with the id that is on params
-    if (!order) {
+    //checks if does not exists a deliveryman with the id that is on params
+    if (!deliveryman) {
       return res.status(400).json({ error: 'Order does not exists' });
     }
 
@@ -95,26 +95,29 @@ class OrderController {
       return res.status(400).json({ error: 'Recipient does not exists' });
     }
 
-    const order = await Order.findOne({
+    const deliveryman = await Order.findOne({
       where: { id: Order_id },
     });
 
-    //checks if does not exists a order with the id that is on req.body
-    if (!order) {
+    //checks if does not exists a deliveryman with the id that is on req.body
+    if (!deliveryman) {
       return res.status(400).json({ error: 'Order does not exists' });
     }
 
-    // it will send email only if the order or recipient change
-    if (Order_id !== order.Order_id || recipient_id !== order.recipient_id) {
+    // it will send email only if the deliveryman or recipient change
+    if (
+      Order_id !== deliveryman.Order_id ||
+      recipient_id !== deliveryman.recipient_id
+    ) {
       await Queue.addJobs(OrderRegistrationMail.key, {
-        order,
+        deliveryman,
         recipient,
         product_name,
       });
     }
 
     // update Orders
-    await order.update(req.body);
+    await deliveryman.update(req.body);
 
     return res.json({
       product_name,
@@ -125,7 +128,7 @@ class OrderController {
 
   async index(req, res) {
     const { page = 1 } = req.query;
-    const order = await Order.findAll({
+    const deliveryman = await Order.findAll({
       attributes: [
         'id',
         'product_name',
@@ -163,11 +166,11 @@ class OrderController {
       ],
     });
 
-    return res.json(order);
+    return res.json(deliveryman);
   }
 
   async show(req, res) {
-    const order = await Order.findByPk(req.params.id, {
+    const deliveryman = await Order.findByPk(req.params.id, {
       attributes: [
         'id',
         'product_name',
@@ -203,14 +206,14 @@ class OrderController {
       ],
     });
 
-    if (!order) {
+    if (!deliveryman) {
       return res.status(400).json({ error: 'Order does not exists' });
     }
-    return res.json(order);
+    return res.json(deliveryman);
   }
 
   async delete(req, res) {
-    const order = await Order.findByPk(req.params.id, {
+    const deliveryman = await Order.findByPk(req.params.id, {
       attributes: [
         'id',
         'product_name',
@@ -246,13 +249,13 @@ class OrderController {
       ],
     });
 
-    if (!order) {
+    if (!deliveryman) {
       return res.status(400).json({ error: 'Order does not exists' });
     }
 
-    await order.destroy();
+    await deliveryman.destroy();
 
-    return res.json(order);
+    return res.json(deliveryman);
   }
 }
 

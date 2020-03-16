@@ -9,6 +9,8 @@ import FileController from './app/controllers/FileController';
 import DeliverymanController from './app/controllers/DeliverymanController';
 import OrderController from './app/controllers/OrderController';
 import PendingDeliveryController from './app/controllers/PendingDeliveryController';
+import DeliveriesController from './app/controllers/DeliveriesController';
+import WithdrawDeliveryController from './app/controllers/WithdrawDeliveryController';
 
 import authenticationMiddleware from './app/middlewares/authentication';
 
@@ -22,6 +24,13 @@ routes.get(
   '/deliveryman/:deliverymanId/pendingDeliveries',
   PendingDeliveryController.index
 );
+routes.get(
+  '/deliveryman/:deliverymanId/deliveries',
+  DeliveriesController.index
+);
+routes.put('/delivery/:orderId/deliveries', DeliveriesController.update);
+
+routes.put('/delivery/:orderId/withdraw', WithdrawDeliveryController.update);
 
 routes.use(authenticationMiddleware); // authentication middleware
 // every routes below need authentication

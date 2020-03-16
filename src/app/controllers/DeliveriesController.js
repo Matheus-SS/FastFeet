@@ -1,21 +1,20 @@
 import Order from '../models/Order';
 import File from '../models/File';
-import Recipient from '../models/Recipient';
 import Deliveryman from '../models/Deliveryman';
+import Recipient from '../models/Recipient';
 
 import { Op } from 'sequelize';
+import { isAfter, parseISO } from 'date-fns';
+import * as Yup from 'yup';
 
-class PendingDeliveryController {
+class DeliveriesController {
   async index(req, res) {
     const { page } = req.query;
     const deliveries = await Order.findAll({
       where: {
         deliveryman_id: req.params.deliverymanId,
-        [Op.or]: {
-          end_date: null,
-          canceled_at: {
-            [Op.not]: null,
-          },
+        end_date: {
+          [Op.not]: null,
         },
       },
       attributes: [
@@ -57,6 +56,44 @@ class PendingDeliveryController {
 
     return res.json(deliveries);
   }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      end_date: Yup.string().required(),
+      signature_id: Yup.number()
+        .required()
+        .integer()
+        .positive(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation failed' });
+    }
+
+    const order = await Order.findByPk(req.params.orderId);
+
+    if (!order) {
+      return res.status(400).json({ error: 'Order does not exists' });
+    }
+
+    const { end_date } = req.body;
+    const endDate = parseISO(end_date);
+
+    const result = isAfter(endDate, order.start_date);
+
+    if (!result) {
+      return res
+        .status(400)
+        .json({ error: 'End date must be after start date' });
+    }
+
+    const { signature_id } = await order.update(req.body);
+
+    return res.json({
+      signature_id,
+      end_date,
+    });
+  }
 }
 
-export default new PendingDeliveryController();
+export default new DeliveriesController();

@@ -9,7 +9,7 @@ import * as Yup from 'yup';
 
 class DeliveriesController {
   async index(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
     const deliveries = await Order.findAll({
       where: {
         deliveryman_id: req.params.deliverymanId,
@@ -57,7 +57,7 @@ class DeliveriesController {
     return res.json(deliveries);
   }
 
-  async update(req, res) {
+  async create(req, res) {
     const schema = Yup.object().shape({
       end_date: Yup.string().required(),
       signature_id: Yup.number()
@@ -76,7 +76,7 @@ class DeliveriesController {
       return res.status(400).json({ error: 'Order does not exists' });
     }
 
-    const { end_date } = req.body;
+    const { end_date, signature_id } = req.body;
     const endDate = parseISO(end_date);
 
     const result = isAfter(endDate, order.start_date);
@@ -87,7 +87,10 @@ class DeliveriesController {
         .json({ error: 'End date must be after start date' });
     }
 
-    const { signature_id } = await order.update(req.body);
+    order.signature_id = signature_id;
+    order.end_date = end_date;
+
+    await order.save();
 
     return res.json({
       signature_id,

@@ -11,6 +11,7 @@ import OrderController from './app/controllers/OrderController';
 import PendingDeliveryController from './app/controllers/PendingDeliveryController';
 import DeliveriesController from './app/controllers/DeliveriesController';
 import WithdrawDeliveryController from './app/controllers/WithdrawDeliveryController';
+import ProblemController from './app/controllers/ProblemController';
 
 import authenticationMiddleware from './app/middlewares/authentication';
 
@@ -24,13 +25,18 @@ routes.get(
   '/deliveryman/:deliverymanId/pendingDeliveries',
   PendingDeliveryController.index
 );
+
 routes.get(
   '/deliveryman/:deliverymanId/deliveries',
   DeliveriesController.index
 );
-routes.put('/delivery/:orderId/deliveries', DeliveriesController.update);
 
-routes.put('/delivery/:orderId/withdraw', WithdrawDeliveryController.update);
+routes.post('/delivery/:orderId/deliveries', DeliveriesController.create);
+
+routes.post('/delivery/:orderId/withdraw', WithdrawDeliveryController.create);
+
+routes.post('/delivery/:orderId/problem', ProblemController.create);
+routes.get('/delivery/:orderId/problem', ProblemController.show);
 
 routes.use(authenticationMiddleware); // authentication middleware
 // every routes below need authentication
@@ -56,5 +62,9 @@ routes.put('/order/:id', OrderController.update);
 routes.get('/order', OrderController.index);
 routes.get('/order/:id', OrderController.show);
 routes.delete('/order/:id', OrderController.delete);
+
+routes.get('/delivery/problem', ProblemController.index);
+
+routes.delete('/problem/:problemId/cancel-delivery', ProblemController.delete);
 
 export default routes;

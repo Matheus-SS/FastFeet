@@ -20,25 +20,6 @@ class RecipientController {
       return res.status(400).json({ error: 'Validation failed' });
     }
 
-    const recipientClone = req.body;
-
-    //checks if there is a recipient equal to the one that will be saved
-    const recipientExist = await Recipient.findOne({
-      where: {
-        name: recipientClone.name,
-        street: recipientClone.street,
-        number: recipientClone.number,
-        complement: recipientClone.complement,
-        state: recipientClone.state,
-        city: recipientClone.city,
-        zip_code: recipientClone.zip_code,
-      },
-    });
-
-    if (recipientExist) {
-      return res.status(400).json({ error: 'Recipient already exists' });
-    }
-
     const {
       name,
       street,
@@ -85,24 +66,6 @@ class RecipientController {
       return res.status(400).json({ error: 'Recipient does not exists' });
     }
 
-    const recipientClone = req.body;
-    //checks if there is a recipient equal to the one that will be updated
-    const recipientExist = await Recipient.findOne({
-      where: {
-        name: recipientClone.name,
-        street: recipientClone.street,
-        number: recipientClone.number,
-        complement: recipientClone.complement,
-        state: recipientClone.state,
-        city: recipientClone.city,
-        zip_code: recipientClone.zip_code,
-      },
-    });
-
-    if (recipientExist) {
-      return res.status(400).json({ error: 'Recipient already exists' });
-    }
-
     const {
       name,
       street,
@@ -127,7 +90,11 @@ class RecipientController {
   }
 
   async index(req, res) {
-    const recipient = await Recipient.findAll();
+    const { page = 1 } = req.query;
+    const recipient = await Recipient.findAll({
+      limit: 20,
+      offset: (page - 1) * 20,
+    });
 
     return res.json(recipient);
   }

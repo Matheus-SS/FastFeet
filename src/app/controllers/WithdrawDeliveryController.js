@@ -12,7 +12,7 @@ import {
 } from 'date-fns';
 
 class WithdrawDeliveryController {
-  async update(req, res) {
+  async create(req, res) {
     const order = await Order.findByPk(req.params.orderId);
 
     if (!order) {
@@ -63,7 +63,11 @@ class WithdrawDeliveryController {
         .status(400)
         .json({ error: 'Pick-up time between 08:00 and 18:00' });
     }
-    const { start_date } = await order.update(req.body);
+
+    order.start_date = req.body.start_date;
+
+    await order.save();
+
     return res.json(order);
   }
 }

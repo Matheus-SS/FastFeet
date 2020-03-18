@@ -7,7 +7,7 @@ import { Op } from 'sequelize';
 
 class PendingDeliveryController {
   async index(req, res) {
-    const { page } = req.query;
+    const { page = 1 } = req.query;
     const deliveries = await Order.findAll({
       where: {
         deliveryman_id: req.params.deliverymanId,

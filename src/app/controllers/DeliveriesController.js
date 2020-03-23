@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 class DeliveriesController {
   async index(req, res) {
     const { page = 1 } = req.query;
-    const deliveries = await Order.finddAll({
+    const deliveries = await Order.findAll({
       where: {
         deliveryman_id: req.params.deliverymanId,
         end_date: {

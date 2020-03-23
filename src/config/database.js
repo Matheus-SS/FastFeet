@@ -1,8 +1,10 @@
+require('dotenv/config');
+
 module.exports = {
-  database: 'FastFeet',
-  username: 'postgres',
-  password: 'docker',// Nao e mais necessario mudar a senha do BD!!!
-  host: 'localhost',
+  database: process.env.DB_NAME,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS, // Nao e mais necessario mudar a senha do BD!!!
+  host: process.env.DB_HOST,
   dialect: 'postgres',
   define: {
     timestamps: true, // created_at and updated_at in each column of database

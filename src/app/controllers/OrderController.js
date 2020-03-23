@@ -68,7 +68,7 @@ class OrderController {
       recipient_id: Yup.number()
         .integer()
         .positive(),
-      Order_id: Yup.number()
+      deliveryman_id: Yup.number()
         .integer()
         .positive(),
     });
@@ -77,12 +77,12 @@ class OrderController {
       return res.status(400).json({ error: 'Validation failed' });
     }
 
-    const { recipient_id, Order_id, product_name } = req.body;
+    const { recipient_id, deliveryman_id, product_name } = req.body;
 
-    const deliveryman = await Order.findByPk(req.params.id);
+    const order = await Order.findByPk(req.params.id);
 
-    //checks if does not exists a deliveryman with the id that is on params
-    if (!deliveryman) {
+    //checks if does not exists a order with the id that is on params
+    if (!order) {
       return res.status(400).json({ error: 'Order does not exists' });
     }
 
@@ -95,19 +95,19 @@ class OrderController {
       return res.status(400).json({ error: 'Recipient does not exists' });
     }
 
-    const deliveryman = await Order.findOne({
-      where: { id: Order_id },
+    const deliveryman = await Deliveryman.findOne({
+      where: { id: deliveryman_id },
     });
 
     //checks if does not exists a deliveryman with the id that is on req.body
     if (!deliveryman) {
-      return res.status(400).json({ error: 'Order does not exists' });
+      return res.status(400).json({ error: 'Deliveryman does not exists' });
     }
 
     // it will send email only if the deliveryman or recipient change
     if (
-      Order_id !== deliveryman.Order_id ||
-      recipient_id !== deliveryman.recipient_id
+      deliveryman_id !== order.deliveryman_id ||
+      recipient_id !== order.recipient_id
     ) {
       await Queue.addJobs(OrderRegistrationMail.key, {
         deliveryman,
@@ -117,12 +117,12 @@ class OrderController {
     }
 
     // update Orders
-    await deliveryman.update(req.body);
+    await order.update(req.body);
 
     return res.json({
       product_name,
       recipient_id,
-      Order_id,
+      deliveryman_id,
     });
   }
 
